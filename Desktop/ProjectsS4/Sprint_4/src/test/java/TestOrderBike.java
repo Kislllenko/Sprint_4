@@ -1,51 +1,50 @@
 import PageObject.OrderBikePage;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
-import org.junit.Test;
 
 public class TestOrderBike {
 
-    @Test
-    public void checkOrderBikeSet1() {
+    private WebDriver driver;
 
-        WebDriver driver = new ChromeDriver();
-        driver.get("https://qa-scooter.praktikum-services.ru/");
+    public static Object[][] getTextData() {
+        return new Object[][] {
+                { "Заказать", "Сергей", "Кисленко", "Санкт-Петербург ул. Яхтенная", "Комсомольская", "+79991234532", "25.06.2023", "сутки", "black", "первый комментарий"},
+                { "Заказать в футере", "Анастасия", "Кисленко", "Санкт-Петербург ул. Яхтенная", "Чистые пруды", "+79111234538", "28.06.2023", "четверо суток", "grey", "второй комментарий"},
+        };
+    }
 
+
+    @BeforeEach
+    public void openUrl() {
+
+        driver = new ChromeDriver();
         OrderBikePage orderBike = new OrderBikePage(driver);
-
         orderBike.clickCookeis();
-        orderBike.clickHeaderOrder();
-        orderBike.fillOrderFormSet1("Сергей", "Кисленко", "Санкт-Петербург ул. Яхтенная", "89991234532");
-        orderBike.clickNextBtn();
-        orderBike.fillAboutRentFormSet1("первый комментарий");
-        orderBike.clickLastStepOrder();
-        orderBike.clickYes();
-        orderBike.checkTextOnWindowAfterOrder();
-
-        driver.quit();
 
     }
 
-    @Test
-    public void checkOrderBikeSet2() {
-
-        WebDriver driver = new FirefoxDriver();
-        driver.get("https://qa-scooter.praktikum-services.ru/");
+    @ParameterizedTest
+    @MethodSource("getTextData")
+    public void checkOrderBike(String btnName, String name, String lastName, String address, String subwayStation, String phoneNumber, String date, String periodRent, String color, String comment) {
 
         OrderBikePage orderBike = new OrderBikePage(driver);
-
-        orderBike.clickCookeis();
-        orderBike.clickFooterOrder();
-        orderBike.fillOrderFormSet1("Анастасия", "Кисленко", "Санкт-Петербург ул. Яхтенная", "89111234538");
-        orderBike.clickNextBtn();
-        orderBike.fillAboutRentFormSet2("второй комментарий");
+        orderBike.clickOrderBtn(btnName);
+        orderBike.fillOrderForm(name, lastName, address, subwayStation, phoneNumber, date, periodRent, color, comment);
         orderBike.clickLastStepOrder();
         orderBike.clickYes();
         orderBike.checkTextOnWindowAfterOrder();
 
-        driver.quit();
+    }
 
+    @AfterEach
+    public void teardown() {
+        // Закрой браузер
+        driver.quit();
     }
 
 }
